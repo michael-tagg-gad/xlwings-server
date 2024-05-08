@@ -1,8 +1,14 @@
 import sys
 
-import xlwings
+import xlwings as xw
+from pyscript import window
 
 
-def test(x):
-    print(xlwings.__version__)
+async def test(x):
+    print(xw.__version__)
     print(sys.version)
+
+    # xlwings.js has the version that is included in base.html
+    xlwingsjs = window.xlwings
+
+    print(await xlwingsjs.getActiveBookName())
