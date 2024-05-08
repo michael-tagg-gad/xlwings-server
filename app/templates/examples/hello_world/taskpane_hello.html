@@ -4,5 +4,8 @@
   <div class="container-fluid pt-3 ps-3">
     <h1>Hello World Example</h1>
     <button x-data="helloWorld" @click="hello" class="btn btn-primary btn-sm" type="button">Hello World</button>
+    {# PyScript Test #}
+    <script type="py" src="/static/mypyscript.py" config="/static/pyscript.json"></script>
+    <button type="button" class="btn btn-primary btn-sm" py-click="test">PyScript Test</button>
   </div>
 {% endblock content %}

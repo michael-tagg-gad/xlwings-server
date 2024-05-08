@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="XLWINGS_", env_file=os.getenv("DOTENV_PATH", ".env"), extra="ignore"
     )
-    add_security_headers: bool = True
+    add_security_headers: bool = False  # TODO: set back to True
     base_dir: Path = Path(__file__).resolve().parent
     cors_allow_origins: List[str] = ["*"]
     enable_alpinejs_csp: bool = True
