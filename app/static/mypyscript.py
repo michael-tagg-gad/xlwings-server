@@ -1,14 +1,31 @@
+"""
+* You can use pyscript.fetch, but often, you'll run into CORS issues (GitHub is fine though)
+* No support for TCP/IP, i.e., no connections with external databases like Postgres
+* No access to local file system, but there's a virtual file system where files can be created via URLs
+* xlwings (Python) is currently old as the current version doesn't have a wasm build yet
+* Pictures/Matplotlib should be possible to pass to JS via file system or if not via base64 encoding
+"""
+
+import json
+import os
 import sys
 
-import xlwings as xw
-from pyscript import window
+os.environ["XLWINGS_LICENSE_KEY"] = "noncommercial"
+import xlwings as xw  # noqa: E402
+from pyscript import window  # noqa: E402
 
 
-async def test(x):
+async def test(event):
     print(xw.__version__)
     print(sys.version)
 
     # xlwings.js has the version that is included in base.html
-    xlwingsjs = window.xlwings
+    xwjs = window.xlwings
+    print(await xwjs.getActiveBookName())
 
-    print(await xlwingsjs.getActiveBookName())
+    # Or don't return JSON.stringify in runPython and do data.to_py() instead
+    data = await xwjs.runPython()
+    data = json.loads(data)
+
+    book = xw.Book(json=data)
+    print(book.sheets[0]["A1:A2"].value)
