@@ -29,3 +29,8 @@ async def test(event):
 
     book = xw.Book(json=data)
     print(book.sheets[0]["A1:A2"].value)
+    book.sheets[0]["A3"].value = "xxxxxxx"
+
+    # Result
+    process_result = window.processResult
+    process_result(json.dumps(book.json()))
