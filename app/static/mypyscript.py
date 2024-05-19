@@ -1,9 +1,9 @@
 """
 * You can use pyscript.fetch, but often, you'll run into CORS issues (GitHub is fine though)
 * No support for TCP/IP, i.e., no connections with external databases like Postgres
-* No access to local file system, but there's a virtual file system where files can be created via URLs
-* xlwings (Python) is currently old as the current version doesn't have a wasm build yet
+* No access to local file system, but there's a virtual file system where files can be created via URLs or via upload
 * Pictures/Matplotlib should be possible to pass to JS via file system or if not via base64 encoding
+* TODO: test out custom functions
 """
 
 import json
