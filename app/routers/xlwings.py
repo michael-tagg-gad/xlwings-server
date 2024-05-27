@@ -36,6 +36,7 @@ async def custom_functions_meta():
     return xw.server.custom_functions_meta(custom_functions)
 
 
+# Unused for pyscript POC
 @router.get("/custom-functions-code")
 async def custom_functions_code():
     return Response(
@@ -44,6 +45,7 @@ async def custom_functions_code():
     )
 
 
+# Unused for pyscript POC
 @router.post("/custom-functions-call")
 async def custom_functions_call(
     request: Request,
