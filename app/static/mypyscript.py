@@ -3,7 +3,6 @@
 * No support for TCP/IP, i.e., no connections with external databases like Postgres
 * No access to local file system, but there's a virtual file system where files can be created via URLs or via upload
 * Pictures/Matplotlib should be possible to pass to JS via file system or if not via base64 encoding
-* TODO: test out custom functions
 """
 
 import json
@@ -34,3 +33,10 @@ async def test(event):
     # Result
     process_result = window.processResult
     process_result(json.dumps(book.json()))
+
+
+async def hello(name):
+    return [[f"hello from Python, {name}!"]]
+
+
+window.hello = hello

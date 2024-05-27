@@ -1,4 +1,6 @@
 async function hello(name) {
-  return [[`Hello ${name}`]];
+  let r = await window.hello(name);
+  return r.toJs();
 }
+
 CustomFunctions.associate("HELLO", hello);
