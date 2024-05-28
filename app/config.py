@@ -6,17 +6,18 @@ from pydantic import UUID4, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+# TODO: default have been changed!
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="XLWINGS_", env_file=os.getenv("DOTENV_PATH", ".env"), extra="ignore"
     )
-    add_security_headers: bool = False  # TODO: set back to True
+    add_security_headers: bool = False
     base_dir: Path = Path(__file__).resolve().parent
     cors_allow_origins: List[str] = ["*"]
-    enable_alpinejs_csp: bool = True
+    enable_alpinejs_csp: bool = False
     enable_examples: bool = True
     enable_excel_online: bool = True
-    enable_htmx: bool = True
+    enable_htmx: bool = False
     enable_socketio: bool = True
     entraid_client_id: Optional[str] = None
     entraid_tenant_id: Optional[str] = None
