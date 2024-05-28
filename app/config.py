@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     manifest_id_uat: UUID4 = "70428e53-8113-421c-8fe2-9b74fcb94ee5"
     manifest_id_prod: UUID4 = "4f342d85-3a49-41cb-90a5-37b1f2219040"
     project_name: str = "xlwings Server"
-    public_addin_store: bool = False
+    public_addin_store: bool = True
     license_key: str
 
     @computed_field
