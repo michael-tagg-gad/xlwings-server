@@ -8,7 +8,7 @@
 import json
 import os
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 os.environ["XLWINGS_LICENSE_KEY"] = "noncommercial"
 import xlwings as xw  # noqa: E402
@@ -25,13 +25,13 @@ async def test(event):
 
     # Usual xlwings API
     sheet1 = book.sheets[0]
-    print(book.sheets[0]["A1:A2"].value)
+    print(sheet1["A1:A2"].value)
     book.sheets[0]["A3"].value = "xxxxxxx"
 
-    fig = plt.figure()
-    plt.plot([1, 2, 3])
-    sheet1.pictures.add(fig, name="MyPlot", update=True, anchor=sheet1["C5"])
-    sheet1["A1"].select()
+    # fig = plt.figure()
+    # plt.plot([1, 2, 3])
+    # sheet1.pictures.add(fig, name="MyPlot", update=True, anchor=sheet1["C5"])
+    # sheet1["A1"].select()
 
     # Process actions (this could be improved so methods are applied immediately)
     xwjs.processResult(json.dumps(book.json()))
