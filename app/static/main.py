@@ -8,35 +8,31 @@
 
 import json
 import os
-import sys
 
 os.environ["XLWINGS_LICENSE_KEY"] = "noncommercial"
 import xlwings as xw  # noqa: E402
 from pyscript import window  # noqa: E402
 
+xwjs = window.xlwings
+process_result = window.processResult
+
 
 async def test(event):
-    print(xw.__version__)
-    print(sys.version)
-
-    # xlwings.js has the version that is included in base.html
-    xwjs = window.xlwings
-    print(await xwjs.getActiveBookName())
-
-    # Or don't return JSON.stringify in runPython and do data.to_py() instead
+    """Called from task pane button"""
+    # Instantiate Book hack
     data = await xwjs.runPython()
-    data = json.loads(data)
+    book = xw.Book(json=json.loads(data))
 
-    book = xw.Book(json=data)
+    # Usual xlwings API
     print(book.sheets[0]["A1:A2"].value)
     book.sheets[0]["A3"].value = "xxxxxxx"
 
-    # Result
-    process_result = window.processResult
+    # Process actions (this could be improved so methods are applied immediately)
     process_result(json.dumps(book.json()))
 
 
 async def hello(name):
+    """Used as custom function (a.k.a. UDF)"""
     return [[f"hello from Python, {name}!"]]
 
 
