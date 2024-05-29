@@ -1,20 +1,20 @@
 """
 * You can use pyscript.fetch, but often, you'll run into CORS issues (GitHub is fine though)
-* No support for TCP/IP, i.e., no connections with external databases like Postgres
+* No support for TCP/IP connections, i.e., no connections with external databases like Postgres
 * No access to local file system, but there's a virtual file system where files can be created via URLs or via upload
-* TODO: Pictures/Matplotlib should be possible to pass to JS via file system or if not via base64 encoding
-* TODO: Look into https://docs.pyscript.net/2024.5.2/user-guide/workers/
+* Check out https://docs.pyscript.net/2024.5.2/user-guide/workers/
 """
 
 import json
 import os
+
+import matplotlib.pyplot as plt
 
 os.environ["XLWINGS_LICENSE_KEY"] = "noncommercial"
 import xlwings as xw  # noqa: E402
 from pyscript import window  # noqa: E402
 
 xwjs = window.xlwings
-process_result = window.processResult
 
 
 async def test(event):
@@ -24,11 +24,17 @@ async def test(event):
     book = xw.Book(json=json.loads(data))
 
     # Usual xlwings API
+    sheet1 = book.sheets[0]
     print(book.sheets[0]["A1:A2"].value)
     book.sheets[0]["A3"].value = "xxxxxxx"
 
+    fig = plt.figure()
+    plt.plot([1, 2, 3])
+    sheet1.pictures.add(fig, name="MyPlot", update=True, anchor=sheet1["C5"])
+    sheet1["A1"].select()
+
     # Process actions (this could be improved so methods are applied immediately)
-    process_result(json.dumps(book.json()))
+    xwjs.processResult(json.dumps(book.json()))
 
 
 async def hello(name):
