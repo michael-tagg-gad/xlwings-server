@@ -36,11 +36,11 @@ class Settings(BaseSettings):
     hostname: Optional[str] = None
     log_level: str = "INFO"
     # These UUIDs will be overwritten by: python run.py init
-    manifest_id_dev: UUID4 = "0a856eb1-91ab-4f38-b757-23fbe1f73130"
-    manifest_id_qa: UUID4 = "9cda34b1-af68-4dc6-b97c-e63ef6284671"
-    manifest_id_uat: UUID4 = "70428e53-8113-421c-8fe2-9b74fcb94ee5"
-    manifest_id_staging: UUID4 = "34041f4f-9cb4-4830-afb5-db44b2a70e0e"
-    manifest_id_prod: UUID4 = "4f342d85-3a49-41cb-90a5-37b1f2219040"
+    manifest_id_dev: UUID4 = "0dae6634-fcf7-48d7-8704-3ab97588bbbf"
+    manifest_id_qa: UUID4 = "9f14d550-cab0-4504-a033-35ef31871343"
+    manifest_id_uat: UUID4 = "cb5d0a46-9c9c-4cf7-a809-c29464a9a241"
+    manifest_id_staging: UUID4 = "2bd0555c-1223-4934-9988-53dd35e2fcc6"
+    manifest_id_prod: UUID4 = "33b59423-fcf7-42e0-9e01-5f264db6805d"
     project_name: str = "xlwings Server"
     public_addin_store: bool = False
     secret_key: Optional[str] = None
