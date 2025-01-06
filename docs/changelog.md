@@ -1,5 +1,83 @@
 # Changelog
 
+## 0.9.2 (Dec 9, 2024)
+
+- Custom functions reloading (introduced with 0.9.1) is now only done during development.
+- Fixed an issue with the `manifest.xml` when there was no function namespace used in the `prod` environment.
+
+## 0.9.1 (Dec 8, 2024)
+
+- Custom functions are now automatically reloaded every time you edit them without having to restart Excel or reloading the add-in.
+- Fixed path handling issues on Windows with `run.py` CLI and `.env`. This fixes issues with `run.py init`, dev server reloading, and loading `.env`.
+- Office.js API versions are now printed in the dev tools console.
+- Upgraded dependencies.
+
+## 0.9.0 (Nov 27, 2024)
+
+- Launched xlwings Lite, allowing Python-based Office.js add-ins to be deployed as static websites. These add-ins run Python via WebAssembly (Wasm) in the add-in's browser engine, so Python doesn't need to be installed on neither the server nor the local machine. Learn more at [xlwings Lite](index_lite.md).
+- The `XLWINGS_PUBLIC_ADDIN_STORE` setting is deprecated in favor of `XLWINGS_CDN_OFFICEJS`.
+- More script examples: show an error in the task pane and show a Matplotlib plot.
+- Upgraded dependencies incl. xlwings to 0.33.4.
+
+## 0.8.0 (Nov 8, 2024)
+
+- The `XLWINGS_APP_PATH` settings has been improved to be independent of a specific setup of an external service such as nginx.
+- Enhanced `TemplateResponse` by making the `context` argument optional and by providing `settings` behind the scenes.
+- New task pane docs, additionally covering Jinja, Bootstrap, and Alpine.js.
+- Breaking change: If you were using `XLWINGS_APP_PATH` in connection with nginx, you'll have to adjust your nginx config in line with [`nginx/nginx-apppath.conf`](https://github.com/xlwings/xlwings-server/blob/main/nginx/nginx-apppath.conf).
+
+## 0.7.0 (Oct 29, 2024)
+
+- The task pane can now interact with the Excel object model via htmx, see the [docs](https://server.xlwings.org/en/latest/htmx/).
+- Added a favicon to silence an error in the dev tools console (Windows).
+- Tests now additionally run with Python 3.13.
+- Moved Office.js JavaScript code from xlwings to xlwings-server.
+- Bug fix: Object handles now also work with varargs.
+- Upgraded dependencies.
+
+## 0.6.3 (Oct 23, 2024)
+
+- Bug fix: Fixed Jinja templates rendering to ensure content escaping.
+
+## 0.6.2 (Oct 21, 2024)
+
+- Function-specific RBAC: you can now use `required_roles=["role1", "role2"]` inside `@script` or `@func` decorators.
+- Code that uses the Alpine.js CSP build can now be registered in a simplified way by calling `registerAlpineComponent("name", function)`. Also added an Alpine.js CSP build example.
+- Bug fix: object handles with 1-dimensional NumPy arrays are now fixed.
+- Bug fix: removed inline style in sample task pane to be CSP header compliant.
+- Upgraded dependencies incl. xlwings to 0.33.3.
+
+## 0.6.1 (Oct 11, 2024)
+
+- Enhanced the task pane buttons that use the `xw-click` tag: they are now disabled and show a spinner while the request is in progress. Also, errors are now shown at the top of the task pane instead of via alert window.
+- Changed the `<Version>` tag in the manifest to have the format `x.x.x.x` instead of `x.x.x`. This might resolve issues with custom functions.
+- Put manifest.xml template on `.gitattributes` with the git merge strategy `ours`.
+- Upgraded dependencies incl. xlwings to 0.33.2.
+
+## 0.6.0 (Oct 1, 2024)
+
+- Support buttons on sheets with Office.js add-ins.
+- Upgraded dependencies incl. xlwings to 0.33.1.
+
+## 0.5.6 (Sep 25, 2024)
+
+- Object handles: added support for nested custom types, e.g., dicts containing pandas DataFrames.
+- Added an example that shows how to handle authentication with the task pane via htmx.
+
+## 0.5.5 (Sep 23, 2024)
+
+- Added a button to the default task pane to set up a sheet with custom functions examples.
+- Introduced dedicated docs at https://server.xlwings.org.
+- `docker compose up` now also works without dev certificates
+- Fixed a CORS issue when using the Office Scripts integration.
+- Upgraded dependencies incl. xlwings to 0.33.0.
+
+## 0.5.4 (Sep 11, 2024)
+
+- Fixed security headers so that Windows will show the icons on the ribbon correctly.
+- Made the HTTP port configurable in the default Dockerfile.
+- Upgraded dependencies incl. xlwings to 0.32.2.
+
 ## 0.5.3 (Aug 24, 2024)
 
 - Avoid merge conflicts in `requirements` files when merging in upstream.
@@ -34,7 +112,7 @@
 ## 0.4.3 (Jul 9, 2024)
 
 - Fixed `utils.trigger_script()` to only trigger the script 1x no matter how many times the file is open.
-- There is now an official Docker image available: https://hub.docker.com/repository/docker/xlwings/xlwings-server
+- There is now an official Docker image available: https://hub.docker.com/repository/deployment/xlwings/xlwings-server
 - Open Office.js alerts are now closed before showing a new alert, which would otherwise cause an error.
 - Custom functions now show errors that happen outside the app, such as timeouts.
 - Upgraded dependencies incl. xlwings to 0.31.9.

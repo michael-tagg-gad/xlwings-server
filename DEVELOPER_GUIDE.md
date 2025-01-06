@@ -1,4 +1,6 @@
-# Run everything local
+# Developer Guide
+
+## Run everything local
 
 To get a prod-like setup while running the app locally, run the following in separate terminals:
 
@@ -27,7 +29,7 @@ globalThis.socket = io("https://127.0.0.1:8001", {
 });
 ```
 
-# Install the xlwings Python package from its repo into xlwings-server in editable mode
+## Install the xlwings Python package from its repo into xlwings-server in editable mode
 
 - xlwings: delete `project.toml` temporarily
 - xlwings: replace `version = "dev"` with the version from `xlwings.js`
@@ -35,12 +37,60 @@ globalThis.socket = io("https://127.0.0.1:8001", {
 - xlwings-server: `cd ~/dev/xlwings && python setup.py develop`
 - xlwings: undo deletion of `project.toml`
 
-# Build docs
+## Build docs
 
 From the root dir, run:
 
 ```
-sphinx-autobuild docs docs/_build/html  --port 9000
+sphinx-autobuild docs docs/_build/html  --port 9000 -E
 ```
 
 The requirements are currently under `docs/requirements.txt` and have not been included in `requirements-dev.txt` as there's an incompatibility with Python 3.9.
+
+## Upgrade npm dependencies
+
+Node.js isn't required to run the app as the relevant files are copied over from `node_modules` to `app/static/vendor`. It is, however required to upgrade the packages:
+
+1. Install Node.js
+2. `sudo npm install`
+
+Update a package:
+
+```
+npm install mypackage@latest
+```
+
+Or use the VS Code extension `Version Lens`, which allows you to update the packages directly from `packages.json` (click the `V` at the top right).
+
+After updating a package in `packages.json`, run `sudo npm upgrade` followed by:
+
+```
+python scripts/copy_node_modules_to_static_folder.py
+```
+
+to copy over the files to the static folder.
+
+## CSP header
+
+To use the most restrictive CSP header, set `XLWINGS_ENABLE_EXCEL_ONLINE=false` for local development.
+
+## Prettier
+
+The VS Code extension prettier requires to set the configuration to `.prettierrc.js` explicitly.
+
+## Alert window
+
+When debugging the alert/dialog window, you need to open up a separate instance of the dev tools.
+
+## xlwings Lite (Wasm)
+
+Make sure to install the correct version of Pyodide (`npm i pyodide@x.x.x`) for the given version of PyScript. To find out, use the CDN version of PyScript and check out the console logs where it prints the version of Pyodide.
+
+For the offline usage of Pyodide, the following packages are always required to be copied over from the pyodide release package:
+
+- micropip
+- packaging
+
+## Script Lab
+
+Script Lab: figuring out the exact syntax for Office.js is easiest done in the Script Lab add-in that can be installed via Excel's add-in store.

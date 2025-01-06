@@ -30,6 +30,7 @@ RUN xlwings license update -k $(xlwings license deploy) || true
 COPY ./scripts/build_static_files.py ./scripts/build_static_files.py
 COPY ./app /project/app
 
+# Cache busting: add content hashes to the static file names
 RUN python ./scripts/build_static_files.py
 
 EXPOSE 8000
@@ -40,6 +41,7 @@ EXPOSE 8000
 CMD ["sh", "-c", \
      "gunicorn app.main:main_app \
      --bind 0.0.0.0:${PORT:-8000} \
+     --timeout 30 \
      --access-logfile - \
      --workers 1 \
      --worker-class uvicorn.workers.UvicornWorker"]

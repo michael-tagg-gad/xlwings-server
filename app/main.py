@@ -13,8 +13,10 @@ from . import settings
 from .object_handles import ObjectCacheConverter
 from .routers import socketio as socketio_router
 from .routers.manifest import router as manifest_router
+from .routers.root import router as root_router
 from .routers.taskpane import router as taskpane_router
 from .routers.xlwings import router as xlwings_router
+from .templates import templates
 
 # Logging
 logging.basicConfig(level=settings.log_level.upper())
@@ -22,6 +24,10 @@ logger = logging.getLogger(__name__)
 
 # App
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+
+# Starlette's url_for returns fully qualified URLs causing issues if the reverse proxy
+# handles TLS and the app runs on http (https://github.com/encode/starlette/issues/843)
+templates.env.globals["url_for"] = app.url_path_for
 
 # Register Converter
 ObjectCacheConverter.register(object, "object", "obj")
@@ -33,6 +39,8 @@ cors_app = CORSMiddleware(
     app=app,
     allow_origins=settings.cors_allow_origins,
     allow_methods=["POST"],
+    allow_headers=["*"],
+    allow_credentials=False,
 )
 main_app = cors_app
 
@@ -42,11 +50,13 @@ if settings.enable_socketio:
         socketio_router.sio,
         # Only forward ASGI traffic if there's no message queue and hence 1 worker setup
         cors_app if not settings.socketio_message_queue_url else None,
+        socketio_path=f"{settings.app_path}/socket.io",
     )
     main_app = sio_app if not settings.socketio_message_queue_url else cors_app
 
 
 # Routers
+app.include_router(root_router)
 app.include_router(xlwings_router)
 app.include_router(taskpane_router)
 app.include_router(manifest_router)
@@ -65,7 +75,10 @@ async def add_security_headers(request, call_next):
     # https://owasp.org/www-project-secure-headers/index.html#configuration-proposal
     # https://owasp.org/www-project-secure-headers/ci/headers_add.json
     response = await call_next(request)
-    if settings.add_security_headers:
+    if not settings.add_security_headers and settings.environment == "dev":
+        # Prevent caching in dev even if security headers are switched off
+        response.headers["Cache-Control"] = "no-store, max-age=0"
+    if settings.add_security_headers and not settings.enable_lite:
         data = read_security_headers()
 
         # Extract file extension from request URL
@@ -80,6 +93,10 @@ async def add_security_headers(request, call_next):
                 # Permissions-Policy headers are experimental
                 # Clear-Site-Data is too aggressive
                 response.headers[header["name"]] = header["value"]
+        # For example, Bootstrap alerts need this
+        response.headers["Content-Security-Policy"] = (
+            response.headers["Content-Security-Policy"] + "; img-src 'self' data:"
+        )
         if settings.enable_excel_online:
             response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
             response.headers["Content-Security-Policy"] = response.headers[
@@ -90,7 +107,7 @@ async def add_security_headers(request, call_next):
                 + "; font-src 'self' https://res-1.cdn.office.net; style-src 'self' 'unsafe-inline';"
             )
             del response.headers["X-Frame-Options"]
-        if settings.public_addin_store:
+        if settings.cdn_officejs:
             response.headers["Content-Security-Policy"] = (
                 response.headers["Content-Security-Policy"]
                 + "; script-src 'self' https://appsforoffice.microsoft.com;"
@@ -100,20 +117,35 @@ async def add_security_headers(request, call_next):
     return response
 
 
-# Endpoints
-@app.get("/")
-async def root():
-    # This endpoint could be used for a health check
-    return {"status": "ok"}
-
-
-# Static files: in prod should be served via a HTTP server like nginx if possible
-# See also pending ASGI branch in https://github.com/evansd/whitenoise
+# Static files: in prod might be served by something like nginx or via
+# https://github.com/matthiask/blacknoise or https://github.com/Archmonger/ServeStatic
 app.mount(
-    "/static",
+    settings.static_url_path,
     StaticFiles(directory=settings.static_dir),
     name="static",
 )
+
+if settings.enable_lite:
+    # For xlwings Lite development
+    app.mount(
+        # Use the same path prefix as for static files
+        settings.static_url_path.replace("static", "lite"),
+        StaticFiles(directory=settings.base_dir / "lite"),
+        name="lite",
+    )
+    app.mount(
+        # Use the same path prefix as for static files
+        settings.static_url_path.replace("static", "custom_functions"),
+        StaticFiles(directory=settings.base_dir / "custom_functions"),
+        name="custom_functions",
+    )
+    app.mount(
+        # Use the same path prefix as for static files
+        settings.static_url_path.replace("static", "custom_scripts"),
+        StaticFiles(directory=settings.base_dir / "custom_scripts"),
+        name="custom_scripts",
+    )
+
 if settings.environment == "dev":
     # Don't cache static files
     StaticFiles.is_not_modified = lambda *args, **kwargs: False

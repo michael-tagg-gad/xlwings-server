@@ -1,10 +1,11 @@
 import importlib
+import json
 import logging
-from typing import Annotated, Union
+from typing import Annotated, Optional, Union
 
 import redis
 import xlwings as xw
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Form, Header, HTTPException, Request, status
 
 from . import models
 from .config import settings
@@ -14,9 +15,25 @@ logger = logging.getLogger(__name__)
 
 
 # Book
-def get_book(body: dict):
+async def parse_book_input(
+    request: Request,
+    form_data: Optional[str] = Form(None, alias="bookData"),
+) -> dict:
+    """Helper dependency to parse either form data (htmx)
+    or body (custom scripts & custom functions) -- couldn't make Body() work"""
+    if form_data:
+        return json.loads(form_data)
+    else:
+        body_bytes = await request.body()
+        if body_bytes:
+            body_str = body_bytes.decode("utf-8")
+            return json.loads(body_str)
+    raise HTTPException(status_code=400, detail="No book data provided")
+
+
+async def get_book(book_data: dict = Depends(parse_book_input)):
     """Book dependency that returns the calling book and cleans it up again"""
-    book = xw.Book(json=body)
+    book = xw.Book(json=book_data)
     try:
         yield book
     finally:

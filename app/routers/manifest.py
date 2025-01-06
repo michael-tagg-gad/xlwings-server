@@ -6,12 +6,13 @@ from fastapi import APIRouter, Header, Request
 from ..config import settings
 from ..templates import TemplateResponse
 
-router = APIRouter()
+router = APIRouter(prefix=settings.app_path)
 
 logger = logging.getLogger(__name__)
 
 
 @router.get("/manifest")
+@router.get("/manifest.xml")
 async def manifest(
     request: Request, protocol: str = Header(default="", alias="X-Forwarded-Proto")
 ):
@@ -45,7 +46,7 @@ async def manifest(
 
     return TemplateResponse(
         request=request,
-        name="/manifest.xml",
+        name="manifest.xml",
         context={
             "settings": settings,
             "base_url": base_url,

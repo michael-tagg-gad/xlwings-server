@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block socketio %}
+{% endblock socketio %}
+{% block socketio2 %}
+{% endblock socketio2 %}
+
+{% block custom_functions_code %}
+{% endblock custom_functions_code %}
+
+{% block hotreload %}
+{% endblock hotreload %}
+
+{% block extra_head %}
+  <script src="{{ url_for('static', path='/js/core/xlwings-alert.js') }}" defer></script>
+{% endblock extra_head %}

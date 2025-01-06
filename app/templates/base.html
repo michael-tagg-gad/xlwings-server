@@ -5,78 +5,112 @@
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>Task pane</title>
+      <link rel="icon" type="image/png" href="{{ url_for('static', path='/images/favicon.png') }}" />
+      {# Config #}
+      <script src="{{ url_for('static', path='/js/config.js') }}" defer></script>
       {# htmx #}
       {% if settings.enable_htmx %}
-        <script src="{{ settings.static_url_path }}/vendor/htmx.org/dist/htmx.min.js"></script>
-        <script src="{{ settings.static_url_path }}/vendor/htmx-ext-head-support/head-support.js"></script>
-        <script src="{{ settings.static_url_path }}/vendor/htmx-ext-loading-states/loading-states.js"></script>
-        <script src="{{ settings.static_url_path }}/js/htmx-handlers.js" defer></script>
-        <link rel="stylesheet" href="{{ settings.static_url_path }}/css/htmx.css" />
+        <script src="{{ url_for('static', path='/vendor/htmx.org/dist/htmx.min.js') }}"></script>
+        <script src="{{ url_for('static', path='/vendor/htmx-ext-head-support/head-support.js') }}"></script>
+        <script src="{{ url_for('static', path='/vendor/htmx-ext-loading-states/loading-states.js') }}"></script>
+        <script src="{{ url_for('static', path='/js/core/htmx-handlers.js') }}" defer></script>
       {% endif %}
-      <script src="{{ settings.static_url_path }}/js/utils/officejs-history-fix-part1.js"></script>
+      <script src="{{ url_for('static', path='/js/core/officejs-history-fix-part1.js') }}"></script>
       {# Office.js #}
-      {% if settings.public_addin_store %}
+      {% if settings.cdn_officejs %}
         <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
       {% else %}
-        <script src="{{ settings.static_url_path }}/vendor/@microsoft/office-js/dist/office.js"></script>
+        <script src="{{ url_for('static', path='/vendor/@microsoft/office-js/dist/office.js') }}"></script>
       {% endif %}
-      <script src="{{ settings.static_url_path }}/js/utils/officejs-history-fix-part2.js"></script>
+      <script src="{{ url_for('static', path='/js/core/officejs-history-fix-part2.js') }}"></script>
       {# Socket.io (must come before xlwings.js) #}
-      {% if settings.enable_socketio %}
-        <script src="{{ settings.static_url_path }}/vendor/socket.io/client-dist/socket.io.min.js"></script>
-      {% endif %}
+      {% block socketio %}
+        {% if settings.enable_socketio %}
+          <script src="{{ url_for('static', path='/vendor/socket.io/client-dist/socket.io.min.js') }}"></script>
+        {% endif %}
+      {% endblock socketio %}
       {# xlwings.js (must come before custom-function-code) #}
-      <script src="{{ settings.static_url_path }}/vendor/xlwings/xlwingsjs/dist/xlwings.min.js"></script>
-      {# Examples #}
-      {% if settings.enable_examples %}
-        <script src="{{ settings.static_url_path }}/js/examples.js" defer></script>
-      {% endif %}
-      {# Alpine.js CSP build (aplinejs-handlers must come first) #}
+      <script type="module" src="{{ url_for('static', path='/js/core/xlwingsjs/xlwings.js') }}" defer></script>
+      <script type="module" src="{{ url_for('static', path='/js/core/xlwingsjs/auth.js') }}" defer></script>
+      <script type="module" src="{{ url_for('static', path='/js/core/xlwingsjs/utils.js') }}" defer></script>
+      <script type="module" src="{{ url_for('static', path='/js/core/xlwingsjs/alert.js') }}" defer></script>
+      {% block socketio2 %}
+        {% if settings.enable_socketio %}
+          {# Must come after xlwings.js #}
+          <script src="{{ url_for('static', path='/js/core/socketio-handlers.js') }}" defer></script>
+        {% endif %}
+      {% endblock socketio2 %}
+      {# Alpine.js CSP boilerplate (must come before custom JS, which must come before alpinejs library) #}
       {% if settings.enable_alpinejs_csp %}
-        <script src="{{ settings.static_url_path }}/js/alpinejs-handlers.js" defer></script>
-        <script src="{{ settings.static_url_path }}/vendor/@alpinejs/csp/dist/cdn.min.js" defer></script>
+        <script src="{{ url_for('static', path='/js/core/alpinejs-csp-boilerplate.js') }}"></script>
       {% endif %}
-      {# Auth #}
-      {% set auth_value = settings.auth_providers %}
-      <!-- prettier-ignore-start -->
-      <script id="auth" type="application/json">
-        { "auth": {{ auth_value|tojson }} }
+      {# JS Config #}
+      {# prettier-ignore-start #}
+      <script id="config" type="application/json">
+        {{ settings.jsconfig|tojson }}
       </script>
-      <script id="app-path" type="application/json">
-        { "appPath": {{ settings.app_path|tojson }} }
-      </script>
-      <!-- prettier-ignore-end -->
-      <script src="{{ settings.static_url_path }}/js/auth.js"></script>
+      {# prettier-ignore-end #}
+      <script src="{{ url_for('static', path='/js/auth.js') }}"></script>
       {# Load Custom Functions #}
-      <script src="{{ settings.app_path }}/xlwings/custom-functions-code" defer></script>
+      {% block custom_functions_code %}
+        <script src="{{ url_for('custom_functions_code') }}" defer></script>
+        {% if settings.environment == "dev" %}
+          <script src="{{ url_for('static', path='/js/core/reload-custom-functions.js') }}" defer></script>
+        {% endif %}
+      {% endblock custom_functions_code %}
       {# Bootstrap with the xlwings theme #}
       {% if settings.enable_bootstrap %}
         <link
           rel="stylesheet"
-          href="{{ settings.static_url_path }}/vendor/bootstrap-xlwings/dist/bootstrap-xlwings.min.css" />
-        <script src="{{ settings.static_url_path }}/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+          href="{{ url_for('static', path='/vendor/bootstrap-xlwings/dist/bootstrap-xlwings.min.css') }}" />
+        <script src="{{ url_for('static', path='/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+        <script src="{{ url_for('static', path='/js/core/bootstrap-customizations.js') }}" defer></script>
+      {% endif %}
+      {# Examples #}
+      {% if settings.enable_examples %}
+        <script src="{{ url_for('static', path='/js/core/examples.js') }}" defer></script>
       {% endif %}
       {# Own #}
-      <link rel="stylesheet" href="{{ settings.static_url_path }}/css/style.css" />
-      {% if settings.enable_socketio %}
-        <script src="{{ settings.static_url_path }}/js/socketio-handlers.js" defer></script>
+      <link rel="stylesheet" href="{{ url_for('static', path='/css/core.css') }}" />
+      <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}" />
+      <script src="{{ url_for('custom_scripts_sheet_buttons') }}" defer></script>
+      <script src="{{ url_for('static', path='/js/core/sheet-buttons.js') }}" defer></script>
+      <script src="{{ url_for('static', path='/js/main.js') }}" defer></script>
+      <script src="{{ url_for('static', path='/js/ribbon.js') }}" defer></script>
+      {% block hotreload %}
+        {% if settings.environment == "dev" and settings.enable_socketio %}
+          <script src="{{ url_for('static', path='/js/core/hotreload.js') }}" defer></script>
+        {% endif %}
+      {% endblock hotreload %}
+      {% block extra_head %}
+        {# This allows to selectively load Alpine.js components #}
+      {% endblock extra_head %}
+      {# Alpine.js CSP build (must come after alpinejs-csp-boilerplate.js and custom code such as main.js) #}
+      {% if settings.enable_alpinejs_csp %}
+        <script src="{{ url_for('static', path='/vendor/@alpinejs/csp/dist/cdn.min.js') }}" defer></script>
       {% endif %}
-      <script src="{{ settings.static_url_path }}/js/main.js" defer></script>
-      <script src="{{ settings.static_url_path }}/js/ribbon.js" defer></script>
-      {% if settings.environment == "dev" and settings.enable_socketio %}
-        <script src="{{ settings.static_url_path }}/js/utils/hotreload.js" defer></script>
+      {# xlwings Lite #}
+      {% if settings.enable_lite %}
+        <link rel="stylesheet" href="{{ url_for('static', path='/vendor/@pyscript/core/dist/core.css') }}" />
+        <script type="module" src="{{ url_for('static', path='/vendor/@pyscript/core/dist/core.js') }}"></script>
+        <script
+          type="py"
+          src="{{ url_for('lite', path='main.py') }}"
+          config="{{ url_for('get_pyscript_config') }}"
+          defer></script>
       {% endif %}
     {% endblock head %}
-    {% block extra_head %}
-    {% endblock extra_head %}
   </head>
 
   <body hx-ext="head-support">
     <div
       id="global-error-alert"
-      class="alert alert-danger alert-dismissible fade show d-none"
-      role="alert"
-      style="z-index: 1000;">
+      class="alert alert-danger alert-dismissible fade show d-none z-index-1000"
+      role="alert">
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <span></span>
+    </div>
+    <div id="global-status-alert" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       <span></span>
     </div>

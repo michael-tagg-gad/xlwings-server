@@ -11,7 +11,7 @@ from fastapi import APIRouter, Form, Request
 from ..config import settings
 from ..templates import TemplateResponse
 
-router = APIRouter()
+router = APIRouter(prefix=settings.app_path)
 
 
 @router.get("/taskpane")
@@ -22,8 +22,8 @@ async def taskpane(request: Request):
         picture_names.append(path.name)
     return TemplateResponse(
         request=request,
-        name="/examples/pictures/taskpane_pictures.html",
-        context={"settings": settings, "picture_names": picture_names},
+        name="examples/pictures/taskpane_pictures.html",
+        context={"picture_names": picture_names},
     )
 
 
@@ -31,8 +31,8 @@ async def taskpane(request: Request):
 async def picture(request: Request, picture_name: str = Form(None)):
     return TemplateResponse(
         request=request,
-        name="/examples/pictures/_picture.html",
-        context={"settings": settings, "picture_name": picture_name},
+        name="examples/pictures/_picture.html",
+        context={"picture_name": picture_name},
     )
 ```
 

@@ -1,8 +1,13 @@
 # Git Repository Setup
 
-You will need basic familiarity with Git and have Git installed.
+## Prerequisites
 
-1. Clone the xlwings Server repo. Replace `myproject` with the name of your project:
+- You will need basic familiarity with Git and have Git installed.
+- This guide assumes that you have Python installed.
+
+## Setup
+
+1. Clone the xlwings Server repo. Replace `myproject` with the desired name of your project:
 
    ::::{tab-set}
    :::{tab-item} HTTPS
@@ -24,6 +29,10 @@ You will need basic familiarity with Git and have Git installed.
    :::
    ::::
 
+   ```{note}
+   If you only want to play around with xlwings Server without committing any changes back to Git, you can continue with Step 7. If you want to commit your changes later, you can always come back and follow the Steps 2-6.
+   ```
+
 2. Change into the directory of your project:
 
    ```text
@@ -44,27 +53,43 @@ You will need basic familiarity with Git and have Git installed.
    git remote add origin <URL>
    ```
 
-6. To prevent future merge conflicts with the `requirements` files, run:
+6. Set your local branch to track your new origin:
+
+   ```text
+   git branch --set-upstream-to=origin/main main
+   ```
+
+7. To reduce future merge conflicts with the help of `.gitattributes`, run:
 
    ```text
    git config --local merge.ours.driver true
    ```
 
-7. In the desired Python environment, install the development dependencies:
+8. Install the `uv` package manager:
 
    ```text
-   pip install -r requirements-dev.txt
+   pip install uv
    ```
 
-8. Initialize the repo. This will create an `.env` file for configuration and will create unique UUIDs in the `app/config.py` file.
+9. In the desired Python environment, install the development dependencies:
 
    ```text
-   python run.py init
+   uv pip sync requirements-dev.txt
    ```
 
-9. Open the `.env` file and add your xlwings license key under `XLWINGS_LICENSE_KEY` (top of the file). Note that `.env` is ignored by Git as it may contain sensitive credentials. You should therefore back it up in a secure location such as a password manager.
+10. Initialize the repo. This will create an `.env` file for configuration and will create unique UUIDs in the `app/config.py` file.
 
-10. Commit the changes and push everything to your own repo (feel free to use a Git UI instead of the following commands):
+    ```text
+    python run.py init
+    ```
+
+11. Open the `.env` file and add your xlwings license key under `XLWINGS_LICENSE_KEY` (top of the file).
+
+    ```{note}
+    The `.env` file is ignored by Git as it may contain sensitive credentials. You should therefore back it up in a secure location such as a password manager.
+    ```
+
+12. Commit the changes and push everything to your own repo (feel free to use a Git UI instead of the following commands). If you just want to play around with xlwings Server, you can skip this step.
 
     ```text
     git add .

@@ -10,10 +10,11 @@ from fastapi import APIRouter, Request
 from ..config import settings
 from ..templates import TemplateResponse
 
-router = APIRouter()
+router = APIRouter(prefix=settings.app_path)
 
 
 @router.get("/taskpane")
+@router.get("/taskpane.html")
 async def taskpane(request: Request, app: str = None):
     if not app:
         template = "examples/multi_app/taskpane_loader.html"
@@ -25,10 +26,9 @@ async def taskpane(request: Request, app: str = None):
     return TemplateResponse(
         request=request,
         name=template,
-        context={"settings": settings},
     )
 ```
 
 The sample also depends on:
 
-- `app/static/js/examples.js`
+- `app/static/js/core/examples.js`
